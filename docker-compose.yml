@@ -1,0 +1,29 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Generate with: openssl rand -hex 32
+      SECRET_KEY: "${SECRET_KEY:-change-me-in-production}"
+      # Swap to Postgres by uncommenting the db service below and this URL:
+      # DATABASE_URL: "postgresql+psycopg://mock:mock@db:5432/mockmaster"
+      MAX_MOCKS_PER_USER: "200"
+    volumes:
+      - mock_data:/app/data
+    restart: unless-stopped
+
+  # Uncomment for PostgreSQL instead of SQLite:
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: mock
+  #     POSTGRES_PASSWORD: mock
+  #     POSTGRES_DB: mockmaster
+  #   volumes:
+  #     - pg_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+volumes:
+  mock_data:
+  # pg_data:
