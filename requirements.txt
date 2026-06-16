@@ -6,5 +6,6 @@ pydantic[email]==2.10.4
 PyJWT==2.10.1
 bcrypt==4.2.1
 alembic==1.14.0
-# Optional: enable PostgreSQL by setting DATABASE_URL and installing this driver.
-# psycopg[binary]==3.2.3
+# PostgreSQL driver. Used automatically when DATABASE_URL points at Postgres;
+# harmless for the SQLite default.
+psycopg[binary]==3.2.3

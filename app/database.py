@@ -20,6 +20,15 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 # ---------------------------------------------------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./mockmaster.db")
 
+# Managed Postgres providers (Render, Heroku, Railway, …) hand out URLs with the
+# bare `postgres://` / `postgresql://` scheme. SQLAlchemy 2.x needs an explicit
+# driver, so normalise to psycopg3. This keeps the "set one env var" promise true
+# no matter what the platform injects.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[len("postgres://"):]
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[len("postgresql://"):]
+
 # `check_same_thread` is a SQLite-only quirk; we only pass it for SQLite so the
 # same config works unchanged against PostgreSQL/MySQL/etc.
 _connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}

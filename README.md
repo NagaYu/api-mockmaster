@@ -149,17 +149,35 @@ docker compose up --build      # → http://localhost:8000
 The compose file mounts a named volume so the SQLite DB survives restarts, and
 ships a commented-out PostgreSQL service you can switch on in two lines.
 
-### Render / Railway / Fly.io (one-click style)
+### Render — one-click Blueprint (recommended)
 
-The image honours the platform-provided `$PORT`, so a managed deploy needs only:
+This repo ships a [`render.yaml`](render.yaml) Blueprint that provisions **both** the
+web service and a managed Postgres database, runs migrations on deploy, and generates
+a strong `SECRET_KEY` automatically.
 
-1. Point the platform at this repo (it autodetects the `Dockerfile`).
-2. Set env vars: `SECRET_KEY` (required) and, for durable data, `DATABASE_URL`
-   to a managed Postgres instance.
-3. Deploy. HTTPS and a domain are provisioned by the platform automatically.
+1. Push this repo to GitHub (already done if you're reading this on GitHub).
+2. In the [Render dashboard](https://dashboard.render.com/): **New +→ Blueprint**,
+   select this repo, and **Apply**.
+3. Render builds the Docker image, starts Postgres, wires `DATABASE_URL`, runs
+   `alembic upgrade head`, and gives you an `https://api-mockmaster-XXXX.onrender.com`
+   URL with TLS. Open it and register your first account.
+
+No manual env-var entry needed — it's all in the Blueprint.
+
+> **Free-tier caveats (honest):** Render's free web service spins down after ~15 min
+> of inactivity (first request then takes ~50s to wake), and the free Postgres plan
+> is time-limited. Both are fine for a demo/portfolio; bump the plans in `render.yaml`
+> (`plan: starter`) for always-on production.
+
+### Other platforms (Fly.io, Railway, Cloud Run, …)
+
+The image honours the platform-provided `$PORT`, so any Docker host works. Set
+`SECRET_KEY` (required) and `DATABASE_URL` (managed Postgres for durable data), and
+run `alembic upgrade head` on deploy. The app auto-normalises a `postgres://` URL to
+the right driver, so you can paste the provider's connection string verbatim.
 
 > SQLite on ephemeral filesystems is wiped on redeploy — use Postgres (or a
-> persistent disk) for anything beyond a demo.
+> persistent disk/volume) for anything beyond a demo.
 
 ---
 
