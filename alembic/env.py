@@ -18,8 +18,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Resolve the DB URL at runtime from the environment (defaults to local SQLite).
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", DATABASE_URL))
+# Use the app's already-resolved + driver-normalised URL (reads DATABASE_URL,
+# rewrites postgres:// → postgresql+psycopg://) so migrations and the app agree.
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 target_metadata = Base.metadata
 
